@@ -1,42 +1,26 @@
 const express = require("express");
 const app = express();
 const path = require("path");
-const MongoClient = require("mongodb").MongoClient;
+// const MongoClient = require("mongodb").MongoClient; // Comment out
 
 const PORT = 5050;
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, 'public')));
 
-const MONGO_URL = "mongodb://admin:qwerty@localhost:27017";
-const client = new MongoClient(MONGO_URL);
+// Simple in-memory storage for demo
+let demoUsers = [];
 
-//GET all users
 app.get("/getUsers", async (req, res) => {
-    await client.connect(URL);
-    console.log('Connected successfully to server');
-
-    const db = client.db("apnacollege-db");
-    const data = await db.collection('users').find({}).toArray();
-    
-    client.close();
-    res.send(data);
+    res.send(demoUsers.length ? demoUsers : [{name: "Admin", email: "admin@demo.com"}]);
 });
 
-//POST new user
 app.post("/addUser", async (req, res) => {
     const userObj = req.body;
-    console.log(req.body);
-    await client.connect(URL);
-    console.log('Connected successfully to server');
-
-    const db = client.db("apnacollege-db");
-    const data = await db.collection('users').insertOne(userObj);
-    console.log(data);
-    console.log("data inserted in DB");
-    client.close();
+    console.log("Form submitted:", userObj);
+    demoUsers.push(userObj);
+    res.send({success: true, message: "User added successfully (Demo Mode)"});
 });
 
-
 app.listen(PORT, () => {
-    console.log(`server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
